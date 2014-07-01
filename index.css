@@ -25,3 +25,11 @@
   width: 10px;
   height: 10px;
 }
+
+.brick {
+  position: absolute;
+  background-color: #cc0000;
+  border: 1px solid black;
+  width: 100px;
+  height: 20px;
+}
