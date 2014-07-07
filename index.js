@@ -20,7 +20,8 @@ $(function() {
   
   //gather all paddle-relevant information in one object
   var paddle = {
-    el: $('#paddle')
+    el: $('#paddle'),
+    speed: 1.5
   };
   paddle.maxPos = {
     x: game.dims.x + game.dims.width - paddle.el.width()
@@ -30,8 +31,8 @@ $(function() {
   var ball = {
     el: $('#ball'),
     vel: { //could hide this, but public makes certain things easier to implement.
-      x: 1,
-      y: 1
+      x: 1.5,
+      y: 1.5
     }
   };
   ball.maxPos = {
@@ -135,8 +136,8 @@ $(function() {
   function frameLoop() {
     //update and constrain paddle
     var pos = paddle.el.offset();
-    if(arrow.left) pos.left--;
-    if(arrow.right) pos.left++;
+    if(arrow.left) pos.left -= paddle.speed;
+    if(arrow.right) pos.left += paddle.speed;
     if(pos.left < game.dims.x) pos.left = game.dims.x;
     if(pos.left > paddle.maxPos.x) pos.left = paddle.maxPos.x;
     paddle.el.offset(pos);
