@@ -75,11 +75,11 @@ $(function() {
         active: true, 
         value: 150 - (y * 25)
       };
-      b.el.offset({
-        top: 30 + (y * b.el.height()), 
-        left: 20 + (x * b.el.width())
-      });
       b.el.insertAfter(ball.el);
+      b.el.offset({
+        top: 30 + game.dims.y + (y * b.el.height()), 
+        left: 20 + game.dims.x + (x * b.el.width())
+      });
       bricks[x].push(b);
     }
   }
