@@ -9,8 +9,6 @@
 #paddle {
   position: absolute;
   background-color: #ffff00;
-  left: 260px;
-  top: 400px;
   width: 120px;
   height: 10px;
 }
@@ -18,8 +16,6 @@
 #ball {
   position: absolute;
   background-color: #33ff33;
-  left: 315px;
-  top: 235px;
   width: 10px;
   height: 10px;
 }

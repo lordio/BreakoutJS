@@ -67,24 +67,6 @@ $(function() {
   });
   $window.resize();
   
-  var bricks = [];
-  for(var x = 0; x < 6; ++x) {
-    bricks.push([]);
-    for(var y = 0; y < 6; ++y) {
-      var b = {
-        el: $('<div class="brick"></div>'), 
-        active: true, 
-        value: 150 - (y * 25)
-      };
-      b.el.insertAfter(ball.el);
-      b.el.offset({
-        top: 30 + game.dims.y + (y * b.el.height()), 
-        left: 20 + game.dims.x + (x * b.el.width())
-      });
-      bricks[x].push(b);
-    }
-  }
-  
   //loop is an object of anonymous type that hides state information
   var loop = new function() {
     //hide state from modification other than through specified interface
@@ -106,6 +88,46 @@ $(function() {
       }
     }
   }();
+  
+  var bricks;
+  function initGame() {
+    loop.stop();
+    if(bricks) { //in case we've reset the game.
+      for(var bx in bricks) {
+        for(var by in bricks[bx]) {
+          bricks[bx][by].el.remove();
+        }
+      }
+    }
+    bricks = [];
+    ball.el.offset({
+      top: game.dims.y + 235,
+      left: game.dims.x + 315
+    });
+    ball.vel.x = 1.5;
+    ball.vel.y = 1.5;
+    paddle.el.offset({
+      top: game.dims.y + 400,
+      left: game.dims.x + 260
+    });
+    for(var x = 0; x < 6; ++x) {
+      bricks.push([]);
+      for(var y = 0; y < 6; ++y) {
+        var b = {
+          el: $('<div class="brick"></div>'), 
+          active: true, 
+          value: 150 - (y * 25)
+        };
+        b.el.insertAfter(ball.el);
+        b.el.offset({
+          top: 30 + game.dims.y + (y * b.el.height()), 
+          left: 20 + game.dims.x + (x * b.el.width())
+        });
+        bricks[x].push(b);
+      }
+    }
+  }
+  initGame();
   
   function collide(a, b) {
     //attempt to cache function results to reduce calls
@@ -226,7 +248,7 @@ $(function() {
       }
     }
     if(!bricksRemain) {
-      loop.toggle();
+      initGame();
     }
     ball.el.offset(pos);
     
@@ -238,6 +260,9 @@ $(function() {
     switch(evt.which) {
     case 0x50: //'p' key
       loop.toggle();
+      break;
+    case 0x52: //'r' key
+      initGame();
       break;
     case 0x25: //left arrow
       arrow.left = true;
