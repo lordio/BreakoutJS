@@ -29,5 +29,11 @@
 }
 
 #score {
-  
+  position: absolute;
+  top: 420px;
+  left: 10px;
+  font-family: "Ubuntu";
+  font-size: 1.5em;
+  background-color: rgba(0,0,0,0.0);
+  color: #3333FF;
 }

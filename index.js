@@ -89,6 +89,12 @@ $(function() {
     }
   }();
   
+  var $score = $('#score');
+  function addScore(pts) {
+    score += pts;
+    $score.html('Score: ' + score);
+  }
+  
   var bricks;
   function initGame() {
     loop.stop();
@@ -241,7 +247,7 @@ $(function() {
           );
           
           //these occur whever there's a collision, regardless of direction.
-          score += br.value;
+          addScore(br.value);
           br.active = false;
           br.el.remove();
         }
