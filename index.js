@@ -255,6 +255,7 @@ $(function() {
     }
     if(!bricksRemain) {
       initGame();
+      return;
     }
     ball.el.offset(pos);
     
