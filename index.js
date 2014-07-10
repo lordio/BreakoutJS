@@ -135,30 +135,18 @@ $(function() {
   }
   initGame();
   
+  function centerOf(el) {
+    return {
+      x: el.offset().left + (el.width() / 2),
+      y: el.offset().top + (el.height() / 2)
+    };
+  }
+  
   function collide(a, b) {
-    //attempt to cache function results to reduce calls
-    var ao = a.offset();
-    var ad = {
-      width: a.width(), 
-      height: a.height()
-    };
-    
-    var bo = b.offset();
-    var bd = {
-      width: b.width(), 
-      height: b.height()
-    };
-    
-    var ac = {
-      x: ao.left + (ad.width / 2), 
-      y: ao.top + (ad.height / 2)
-    };
-    var bc = {
-      x: bo.left + (bd.width / 2), 
-      y: bo.top + (bd.height / 2)
-    };
-    return (((Math.abs(ac.x - bc.x) * 2) <= (ad.width + bd.width)) &&
-      ((Math.abs(ac.y - bc.y) * 2) <= (ad.height + bd.height)));
+    var ac = centerOf(a);
+    var bc = centerOf(b);
+    return (((Math.abs(ac.x - bc.x) * 2) <= (a.width() + b.width())) &&
+      ((Math.abs(ac.y - bc.y) * 2) <= (a.height() + b.height())));
   }
   
   function frameLoop() {
@@ -221,7 +209,33 @@ $(function() {
       return;
     }
     if((ball.el.offset().top + ball.el.height() >= paddle.el.offset().top) && collide(ball.el, paddle.el)) {
-      directionalCollide(paddle.el);
+      directionalCollide(paddle.el, null, {
+        x: function() {},
+        y: function() {
+          var sl = Math.sqrt((ball.vel.x * ball.vel.x) + (ball.vel.y * ball.vel.y));
+          
+          var bc = centerOf(ball.el);
+          var pc = centerOf(paddle.el);
+          
+          var iv = {
+            x: bc.x - pc.x,
+            y: bc.y - pc.y
+          };
+          var il = Math.sqrt((iv.x * iv.x) + (iv.y * iv.y)) / sl;
+          iv.x /= il;
+          iv.y /= il;
+          
+          var nv = {
+            x: ball.vel.x + iv.x,
+            y: ball.vel.y + iv.y
+          };
+          var nl = Math.sqrt((nv.x * nv.x) + (nv.y * nv.y)) / sl;
+          nv.x /= nl;
+          nv.y /= nl;
+          
+          ball.vel.x = nv.x;
+          ball.vel.y = nv.y;
+      }});
     }
     
     var bricksRemain = false;
