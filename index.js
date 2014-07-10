@@ -43,7 +43,7 @@ $(function() {
   };
   ball.reflect = { //some simple helper functions for common operations.
     x: function() {
-      ball.vel.x *= -1; //can't say 'this'; would refer to ball.reflect, not ball.
+      ball.vel.x *= -1; //easier to use explicit reference to ball, rather than bind()
     },
     y: function() {
       ball.vel.y *= -1;
@@ -67,8 +67,7 @@ $(function() {
   });
   $window.resize();
   
-  //loop is an object of anonymous type that hides state information
-  var loop = new function() {
+  var loop = new (function() {
     //hide state from modification other than through specified interface
     var state = null;
     this.next = function() {
@@ -87,7 +86,7 @@ $(function() {
         this.next();
       }
     }
-  }();
+  })();
   
   var $score = $('#score');
   function addScore(pts) {
@@ -96,26 +95,7 @@ $(function() {
   }
   
   var bricks;
-  function initGame() {
-    loop.stop();
-    if(bricks) { //in case we've reset the game.
-      for(var bx in bricks) {
-        for(var by in bricks[bx]) {
-          bricks[bx][by].el.remove();
-        }
-      }
-    }
-    bricks = [];
-    ball.el.offset({
-      top: game.dims.y + 235,
-      left: game.dims.x + 315
-    });
-    ball.vel.x = 1.5;
-    ball.vel.y = 1.5;
-    paddle.el.offset({
-      top: game.dims.y + 400,
-      left: game.dims.x + 260
-    });
+  function placeBricks() {
     for(var x = 0; x < 6; ++x) {
       bricks.push([]);
       for(var y = 0; y < 6; ++y) {
@@ -132,6 +112,25 @@ $(function() {
         bricks[x].push(b);
       }
     }
+  }
+  function initGame() {
+    loop.stop();
+    
+    bricks = [];
+    
+    ball.el.offset({
+      top: game.dims.y + 235,
+      left: game.dims.x + 315
+    });
+    ball.vel.x = 1.5;
+    ball.vel.y = 1.5;
+    
+    paddle.el.offset({
+      top: game.dims.y + 400,
+      left: game.dims.x + 260
+    });
+    
+    placeBricks();
   }
   initGame();
   
@@ -200,23 +199,31 @@ $(function() {
       //reset horizontal
       ball.el.offset(oldOff);
     }
+    
+    //move the ball based on its velocity
     pos.left += ball.vel.x;
     pos.top += ball.vel.y;
+    
+    //constrain the ball to the screen
     if(pos.left < game.dims.x || pos.left > ball.maxPos.x) ball.reflect.x();
     if(pos.top < game.dims.y) ball.reflect.y();
     else if(pos.top > ball.maxPos.y) {
       loop.stop();
       return;
     }
+    
+    //check for collision between the ball and paddle
     if((ball.el.offset().top + ball.el.height() >= paddle.el.offset().top) && collide(ball.el, paddle.el)) {
       directionalCollide(paddle.el, null, {
         x: function() {},
         y: function() {
+          //get the ball's velocity vector length
           var sl = Math.sqrt((ball.vel.x * ball.vel.x) + (ball.vel.y * ball.vel.y));
           
           var bc = centerOf(ball.el);
           var pc = centerOf(paddle.el);
           
+          //calculate the impact vector, and normalize it
           var iv = {
             x: bc.x - pc.x,
             y: bc.y - pc.y
@@ -225,6 +232,7 @@ $(function() {
           iv.x /= il;
           iv.y /= il;
           
+          //add the ball velocity vector and the impact vector, and normalize that.
           var nv = {
             x: ball.vel.x + iv.x,
             y: ball.vel.y + iv.y
@@ -233,6 +241,7 @@ $(function() {
           nv.x /= nl;
           nv.y /= nl;
           
+          //set the ball's velocity to the new vector.
           ball.vel.x = nv.x;
           ball.vel.y = nv.y;
       }});
@@ -281,9 +290,6 @@ $(function() {
     switch(evt.which) {
     case 0x50: //'p' key
       loop.toggle();
-      break;
-    case 0x52: //'r' key
-      initGame();
       break;
     case 0x25: //left arrow
       arrow.left = true;
